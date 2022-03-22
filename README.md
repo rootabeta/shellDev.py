@@ -1,4 +1,3 @@
-![resources/popup.bmp](resources/popup.bmp)
 
 ## shellDev.py
 
