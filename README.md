@@ -3,23 +3,26 @@
 ## shellDev.py
 
 A simple python script for building windows 32bit/64bit shellcode in C.
+This is a fork of @aaaddress1's original, which builds shellcode on Linux instead of on Windows. 
+Because a lot of the original code is Windows-centric (especially JIT injection), this branch has SEVERELY REDUCED FUNCTIONALITY. 
+However, this code runs on Linux, and generates Windows shellcode. It assumes you have mingw installed. 
+
+This code is a bunch of commented-out code and hotpatches, so don't be surprised if it breaks - but do let me know, and I'll try to fix it. 
+This program is good for one thing, and that's on-the-fly generation of shellcode from Linux, targeted for Windows systems. 
 
 以 C 語言快速開發支持 Windows 32/64 位元的 Shellcode 之 Python 腳本。
 
 ## Preinstall（前置安裝）
 * Python3
-* MinGW or TDM-GCC
-* $python -m pip install pypiwin32
+* MinGW
 
 ## Demo（簡單展示）
 
-[![Demo on Youtube](https://img.youtube.com/vi/4-M6abqaV3c/0.jpg)](https://www.youtube.com/watch?v=4-M6abqaV3c)
-
 Building 32bit Windows shellcode:
-`> python shellDev.py -m C:\MinGW\mingw32\ -s msg.cpp --jit32`
+`> python shellDev.py -a x86 -s msg.cpp`
 
 Building 62bit Windows shellcode:
-`> python shellDev.py -m C:\MinGW\mingw64\ -s msg.cpp --jit64`
+`> python shellDev.py -a x64 -s msg.cpp`
 
 
 ## shellDev.py Quickly Start 
@@ -149,7 +152,7 @@ all variables should be defined as local variables, global variables will lead t
 
 因為定址方式問題，所以 shellDev 腳本不允許宣告任何全域變數、僅允許以區域變數存放資料，否則產出的 Shellcode 使用後必定會導致程式異常崩潰。即便是傳入給函數的文字常數，也務必先以區域變數保存，在傳遞給函數才能確保 Shellcode 正常運行。
 
-## Contact
+## Contact (original author)
 
 * Twitter @aaaddress1
 * aaaddress1@chroot.org
