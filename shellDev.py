@@ -7,7 +7,10 @@ title = \
  \__ \ | | |  __/ | | |__| |  __/\ V /
  |___/_| |_|\___|_|_|_____/ \___| \_/
 
-v1.3 by aaaddress1@chroot.org
+v1.3-L by aaaddress1@chroot.org
+Linux port by rootabeta
+This version has had features removed for Linux compatability. 
+Still compiles Windows shellcode.
 """
 
 # -------------------- Injection ------------------- #
@@ -20,7 +23,7 @@ from ctypes.wintypes import DWORD
 from ctypes.wintypes import HANDLE
 from ctypes.wintypes import LPVOID
 from ctypes.wintypes import LPCVOID
-import win32process
+#import win32process
 LPCSTR = LPCTSTR = ctypes.c_char_p
 LPDWORD = PDWORD = ctypes.POINTER(DWORD)
 class _SECURITY_ATTRIBUTES(ctypes.Structure):
@@ -33,7 +36,8 @@ LPTHREAD_START_ROUTINE = LPVOID
 
 
 def jitInject(path, shellcode):
-	info = win32process.CreateProcess(None, path, None, None, False, 0x04, None, None, win32process.STARTUPINFO())  
+#	info = win32process.CreateProcess(None, path, None, None, False, 0x04, None, None, win32process.STARTUPINFO())  
+	info = None
 	page_rwx_value = 0x40
 	process_all = 0x1F0FFF
 	memcommit = 0x00001000
@@ -70,7 +74,7 @@ import hashlib
 
 shellDevHpp = \
 """
-#include <Windows.h>
+#include <windows.h>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -337,9 +341,11 @@ PVOID blindFindFunc(uint32_t funcNameHash)
 """
 
 def compileCtoAsmFile(cPath, asmPath, arch):
-	global mingwPath
+#	global mingwPath
+	print("C->ASM ARCH: {}".format(arch))
 	subprocess.call([
-		os.path.join(mingwPath, 'gcc'),
+	(arch + "-w64-mingw32-gcc"),
+#		os.path.join(mingwPath, 'gcc'),
 		'-fno-asynchronous-unwind-tables',
 		'-s',
 		'-O3',
@@ -348,10 +354,11 @@ def compileCtoAsmFile(cPath, asmPath, arch):
 		'-Wa,-R',
 		'-Wa,-mintel',
 		'-falign-functions=1',
-		arch,
+#		arch, #-m32 if 32bit, otherwise not
 		'-c', cPath,
 		'-o', asmPath
-	], cwd=mingwPath)
+	])
+	#, cwd=mingwPath)
 
 def jmpShellCodeEntry(inAsmPath, outAsmPath):
 	with open(inAsmPath, 'r') as r:
@@ -371,19 +378,22 @@ def jmpShellCodeEntry(inAsmPath, outAsmPath):
 
 def genObjAsmBinary(inAsmPath, outObjectFilePath, outAsmRawBinPath, arch):
 	global mingwPath
+	print("ASM->BIN: ARCH: {}".format(arch))
 	subprocess.call([
-		os.path.join(mingwPath, 'gcc'),
-		arch,
+		arch + "-w64-mingw32-gcc",
+#		os.path.join(mingwPath, 'gcc'),
+		#arch, #Should have -m32 to force 32bit compilation in the event of x86 shellcode
 		'-c', inAsmPath,
 		'-o', outObjectFilePath
-	], cwd=mingwPath)
+	]) #, cwd=mingwPath)
 	subprocess.call([
-		os.path.join(mingwPath, 'objcopy'),
+		"/usr/bin/objcopy",
+		#os.path.join(mingwPath, 'objcopy'),
 		'-O', 'binary',
 		outObjectFilePath,
 		'-j', 'shell',
 		outAsmRawBinPath
-	], cwd=mingwPath)
+	]) #, cwd=mingwPath)
 
 def arrayifyBinaryRawFile(binary):
 	dataHexArr = ', '.join(['0x%02X' % (i) for i in binary])
@@ -437,12 +447,12 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 		tmpscript = tmpscript.replace('#include <shellDev>', shellDevHpp)
 		with open(tmpcpp, 'w') as w: w.write(tmpscript)
 
-	compileCtoAsmFile(tmpcpp, asm, '-m32' if arch == 'x86' else '-m64')
+	compileCtoAsmFile(tmpcpp, asm, arch) #'-m32' if arch == 'x86' else '-m64')
 	jmpShellCodeEntry(asm, shellAsm)
-	genObjAsmBinary(shellAsm, obj, binraw,  '-m32' if arch == 'x86' else '-m64')
+	genObjAsmBinary(shellAsm, obj, binraw, arch) # '-m32' if arch == 'x86' else '-m64')
 
 	shellcodeBytecode = open(binraw, 'rb').read()
-	if jitInj:
+	if False:
 		if arch == 'x86':
 			print('[+] jit mode: 32bit')
 			jitInject('C:\\Windows\\SysWoW64\\notepad.exe', shellcodeBytecode)
@@ -450,6 +460,8 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 			print('[+] jit mode: 64bit')
 			jitInject('C:\\Windows\\System32\\notepad.exe', shellcodeBytecode)
 	else:
+		if jitInj:
+			print("ERROR: BYPASSED")
 		with open(shelltxtOut, 'w') as w:
 			w.write(arrayifyBinaryRawFile(shellcodeBytecode))
 			print('[v] shellcode saved at %s' % shelltxtOut)
@@ -472,26 +484,26 @@ def chkExeExist(name, path):
 		sys.exit(1)
 
 def chkMinGwToolkit(usrInputMinGWPath):
-	global mingwPath
-	mingwPath = usrInputMinGWPath
-	if not 'bin' in mingwPath:
-		mingwPath = os.path.join(mingwPath, 'bin')
-		if os.path.exists(mingwPath):
-			print('[v] check mingw tool path: %s ' % mingwPath)
-		else:
-			print('[x] sorry, mingw toolkit not found in %s' % mingwPath)
-	chkExeExist('gcc', os.path.join(mingwPath, 'gcc.exe'))
-	chkExeExist('as', os.path.join(mingwPath, 'as.exe'))
-	chkExeExist('objcopy', os.path.join(mingwPath, 'objcopy.exe'))
-	print('')
+	#global mingwPath
+	#mingwPath = usrInputMinGWPath
+#	if not 'bin' in mingwPath:
+#		mingwPath = os.path.join(mingwPath, 'bin')
+#		if os.path.exists(mingwPath):
+#			print('[v] check mingw tool path: %s ' % mingwPath)
+#		else:
+#			print('[x] sorry, mingw toolkit not found in %s' % mingwPath)
+#	chkExeExist('gcc', os.path.join(mingwPath, 'gcc.exe'))
+#	chkExeExist('as', os.path.join(mingwPath, 'as.exe'))
+#	chkExeExist('objcopy', os.path.join(mingwPath, 'objcopy.exe'))
+	print('[!] CHECK BYPASSED - ASSUMING GREENLIGHT')
 
 if __name__ == "__main__":
 	print(title)
 	parser = OptionParser()
 	parser.add_option("-s", "--src", dest="source",
-	      help="shelldev c/c++ script path.", metavar="PATH")
+	      help="shelldev c/c++ script path to be converted to shellcode.", metavar="PATH")
 	parser.add_option("-m", "--mgw", dest="mingwPath",
-	      help="set mingw path, mingw path you select determine payload is 32bit or 64bit.", metavar="PATH")
+	      help="set mingw path, mingw path you select determine payload is 32bit or 64bit. [DISABLED]", metavar="PATH")
 	parser.add_option("--noclear",
 	      action="store_true", dest="dontclear", default=False,
 	      help="don't clear junk file after generate shellcode.")
@@ -501,11 +513,28 @@ if __name__ == "__main__":
 
 	parser.add_option("--jit",
 	      action="store_true", dest="jit", default=False,
-	      help="Just In Time Compile and Run Shellcode (as x86 Shellcode & Inject to Notepad for test, require run as admin.)")
+	      help="Just In Time Compile and Run Shellcode (as x86 Shellcode & Inject to Notepad for test, require run as admin.) [DISABLED]")
 
 	(options, args) = parser.parse_args()
-	if options.source is None or options.mingwPath is None  or options.arch not in ['x86', 'x64']:
+	if options.jit is not False or options.mingwPath is not None:
+		print("JIT AND MINGWPATH ARE ILLEGAL OPTIONS IN THIS BUILD")
+		print("DEBUG: JIT = {} ; MWP = {}".format(options.jit,options.mingwPath))
+		exit()
+
+	options.mingwPath = "YOU SHOULD NOT SEE THIS - If you do, file a bug report" #Overwrite mingw path with bogus file
+	mingwPath = options.mingwPath
+
+	if options.source is None or options.arch not in ['x86', 'x64']:
 		parser.print_help()
 	else:
 		chkMinGwToolkit(options.mingwPath)
-		genShellcode(options.source, not options.dontclear, options.arch, options.jit)
+		if options.arch == "x86":
+			print("COMPILING FOR x86")
+			ARCHCOMPILEFLAG = 'i686'
+		elif options.arch == "x64":
+			print("COMPILING FOR x64")
+			ARCHCOMPILEFLAG = 'x86_64' #Prepend to select mingw file
+
+		print("COMPILE FLAG IS {}".format(ARCHCOMPILEFLAG))
+
+		genShellcode(options.source, not options.dontclear, ARCHCOMPILEFLAG , options.jit)
