@@ -2,31 +2,30 @@
 
 ## shellDev.py
 
-A simple python script for building windows 32bit/64bit shellcode in C.
+A simple python script for building windows 32bit/64bit shellcode in C... on Linux!
 
 以 C 語言快速開發支持 Windows 32/64 位元的 Shellcode 之 Python 腳本。
 
 ## Preinstall（前置安裝）
 * Python3
 * MinGW or TDM-GCC
-* $python -m pip install pypiwin32
 
 ## Demo（簡單展示）
 
 [![Demo on Youtube](https://img.youtube.com/vi/4-M6abqaV3c/0.jpg)](https://www.youtube.com/watch?v=4-M6abqaV3c)
 
 Building 32bit Windows shellcode:
-`> python shellDev.py -m C:\MinGW\mingw32\ -s msg.cpp --jit32`
+`> python shellDev.py -a x86 -s msg.cpp`
 
 Building 62bit Windows shellcode:
-`> python shellDev.py -m C:\MinGW\mingw64\ -s msg.cpp --jit64`
+`> python shellDev.py -a x64 -s msg.cpp`
 
 
 ## shellDev.py Quickly Start 
 
 demo.cpp（shellDev 腳本範例）
 
-```cpp
+```c
 /* Beep & Alert.
  * by aaaddress1@chroot.org
  */
