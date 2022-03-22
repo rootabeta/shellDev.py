@@ -9,6 +9,9 @@ However, this code runs on Linux, and generates Windows shellcode. It assumes yo
 This code is a bunch of commented-out code and hotpatches, so don't be surprised if it breaks - but do let me know, and I'll try to fix it. 
 This program is good for one thing, and that's on-the-fly generation of shellcode from Linux, targeted for Windows systems. 
 
+Todos:
+- [ ] Encoding to remove bad characters
+
 ![螢幕快照 2018-02-18 上午10.55.26.png](resources/2021demo.png)
 
 以 C 語言快速開發支持 Windows 32/64 位元的 Shellcode 之 Python 腳本。
