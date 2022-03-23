@@ -13,6 +13,9 @@ Todos:
 - [X] Encoding to remove bad characters
 - [ ] Enable writing to a designated output directory, as opposed to dumping shellcode to cwd
 
+Resulting shellcode tested on:
+- Windows 11 x64
+
 ![螢幕快照 2018-02-18 上午10.55.26.png](resources/2021demo.png)
 
 以 C 語言快速開發支持 Windows 32/64 位元的 Shellcode 之 Python 腳本。
