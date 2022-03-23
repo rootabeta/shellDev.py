@@ -23,6 +23,15 @@ from ctypes.wintypes import DWORD
 from ctypes.wintypes import HANDLE
 from ctypes.wintypes import LPVOID
 from ctypes.wintypes import LPCVOID
+
+try:
+	from pwn import pwnlib
+	PWNLIBFOUND = True
+except ModuleNotFoundError:
+	print("[!] ERROR: pwnlib not found")
+	print("[!] Automatic shellcode encoding not possible!")
+	PWNLIBFOUND = False
+
 #import win32process
 LPCSTR = LPCTSTR = ctypes.c_char_p
 LPDWORD = PDWORD = ctypes.POINTER(DWORD)
@@ -402,7 +411,7 @@ def arrayifyBinaryRawFile(binary):
 	retn += 'unsigned int shellcode_size = %i;\n' % len(binary)
 	return retn
 
-def genShellcode(cppPath, clearAfterRun, arch, jitInj = None):
+def genShellcode(cppPath, clearAfterRun, arch, badChars, jitInj = None):
 	dir = os.getcwd()
 
 	if len(os.path.dirname(cppPath)) == 0:
@@ -423,6 +432,9 @@ def genShellcode(cppPath, clearAfterRun, arch, jitInj = None):
 	binraw = preScriptPath + '.bin'
 	shelltxtOut = preScriptPath + '_shellcode.txt'
 	shellcodeBin = preScriptPath + '_shellcode.bin'
+	shelltxtOutENCODED = preScriptPath + '_shellcode-ENCODED.txt'
+	shellcodeBinENCODED = preScriptPath + '_shellcode-ENCODED.bin'
+
 	with open(cpp, 'r') as i:
 		script = i.read()
 		tmpscript = ''
@@ -462,12 +474,26 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 	else:
 		if jitInj:
 			print("ERROR: BYPASSED")
+
 		with open(shelltxtOut, 'w') as w:
 			w.write(arrayifyBinaryRawFile(shellcodeBytecode))
 			print('[v] shellcode saved at %s' % shelltxtOut)
 		with open(shellcodeBin, 'wb') as w:
 			w.write(shellcodeBytecode)
 			print('[v] shellcode *binary* saved at %s' % shellcodeBin)
+	
+		if badChars:
+			print("ENCODING SHELLCODE")
+			encodedShellcode = pwnlib.encoders.encoder.encode(shellcodeBytecode, badChars)
+
+			with open(shelltxtOutENCODED,'w') as w:
+				w.write(arrayifyBinaryRawFile(encodedShellcode))
+				print("[*] Encoded shellcode saved to {}".format(shelltxtOutENCODED))
+
+			with open(shellcodeBinENCODED,'wb') as w:
+				w.write(encodedShellcode)
+				print("[*] Encoded shellcode *binary* saved to {}".format(shellcodeBinENCODED))
+
 
 	if clearAfterRun:
 		os.remove(asm)
@@ -502,24 +528,45 @@ if __name__ == "__main__":
 	parser = OptionParser()
 	parser.add_option("-s", "--src", dest="source",
 	      help="shelldev c/c++ script path to be converted to shellcode.", metavar="PATH")
-	parser.add_option("-m", "--mgw", dest="mingwPath",
-	      help="set mingw path, mingw path you select determine payload is 32bit or 64bit. [DISABLED]", metavar="PATH")
+
 	parser.add_option("--noclear",
 	      action="store_true", dest="dontclear", default=False,
 	      help="don't clear junk file after generate shellcode.")
 
+	parser.add_option("-b","--bad-chars",dest="badChars", help="List of bad characters in a comma-seperated list (e.g. -b 0x00,0x0a,0x20)",default="")
+
 	parser.add_option("-a", "--arch", dest="arch",
 	      help="Arch - should be x86 or x64")
 
-	parser.add_option("--jit",
-	      action="store_true", dest="jit", default=False,
-	      help="Just In Time Compile and Run Shellcode (as x86 Shellcode & Inject to Notepad for test, require run as admin.) [DISABLED]")
+	
+	#Bypass JIT options
+	
+
+	#parser.add_option("-m", "--mgw", dest="mingwPath",
+	#      help="set mingw path, mingw path you select determine payload is 32bit or 64bit. [DISABLED]", metavar="PATH")
+	#parser.add_option("--jit",
+	#      action="store_true", dest="jit", default=False,
+	#      help="Just In Time Compile and Run Shellcode (as x86 Shellcode & Inject to Notepad for test, require run as admin.) [DISABLED]")
 
 	(options, args) = parser.parse_args()
-	if options.jit is not False or options.mingwPath is not None:
-		print("JIT AND MINGWPATH ARE ILLEGAL OPTIONS IN THIS BUILD")
-		print("DEBUG: JIT = {} ; MWP = {}".format(options.jit,options.mingwPath))
-		exit()
+
+	options.mingwPath = None
+	options.jit = False
+
+	badChars = b'' #\x41\x42\x43
+	if options.badChars:
+		if "\\" in options.badChars: 
+			print("Bad format badchar! Use format 0x00,0x01,0x02, not \\x00\\x01\\x02. Skipping encoding!")
+		elif "," in options.badChars: #0x00,0x01
+			for char in options.badChars.split(","):
+#				print("[DEBUG] BADCHAR -> {}".format(char))
+				badChars += bytes.fromhex(char.split("x")[1]) 
+		elif "0x" in options.badChars:
+			badChars = bytes.fromhex(options.badChars.split("x")[1])
+		else:
+			print("I do not understand your badchars! Ignoring...")
+
+	print("[DEBUG] Badchars: {}".format(badChars))
 
 	options.mingwPath = "YOU SHOULD NOT SEE THIS - If you do, file a bug report" #Overwrite mingw path with bogus file
 	mingwPath = options.mingwPath
@@ -537,4 +584,4 @@ if __name__ == "__main__":
 
 		print("COMPILE FLAG IS {}".format(ARCHCOMPILEFLAG))
 
-		genShellcode(options.source, not options.dontclear, ARCHCOMPILEFLAG , options.jit)
+		genShellcode(options.source, not options.dontclear, ARCHCOMPILEFLAG , badChars)
