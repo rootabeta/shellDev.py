@@ -15,7 +15,7 @@ Todos:
 Resulting shellcode tested on:
 - Windows 11 x64
 
-![resource/front.png](resource/front.png)
+![resource/front.png](resource/front.png?raw=true)
 
 ## Preinstall（前置安裝）
 * Python3
@@ -159,7 +159,7 @@ all variables should be defined as local variables, global variables will lead t
 
 因為定址方式問題，所以 shellDev 腳本不允許宣告任何全域變數、僅允許以區域變數存放資料，否則產出的 Shellcode 使用後必定會導致程式異常崩潰。即便是傳入給函數的文字常數，也務必先以區域變數保存，在傳遞給函數才能確保 Shellcode 正常運行。
 
-![resources/popup.png](resources/popup.png)
+![resources/popup.png](resources/popup.png?raw=true)
 
 ## Contact (original author)
 
