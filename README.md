@@ -15,7 +15,7 @@ Todos:
 Resulting shellcode tested on:
 - Windows 11 x64
 
-![resources/front.png](resource/front.png?raw=true)
+![resources/front.png](resources/front.png?raw=true)
 
 ## Preinstall（前置安裝）
 * Python3
