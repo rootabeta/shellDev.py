@@ -18,8 +18,9 @@ Resulting shellcode tested on:
 ![resources/front.png](resources/front.png?raw=true)
 
 ## Preinstall（前置安裝）
-* Python3
-* MinGW
+- Python3
+- MinGW
+- pwntools (pip3 install pwntools) - Used for shellcode encoding. 
 
 ## Demo（簡單展示）
 
@@ -29,7 +30,7 @@ Building 32bit Windows shellcode:
 Building 64bit Windows shellcode:
 `python3 shelldevplusplus.py -a x64 -s msg.cpp`
 
-Building 64bit Windows shellcode, without \x00\x09\x0a\x20
+Building 64bit Windows shellcode, without \x00\x09\x0a\x20 in the output.
 `python3 shelldevplusplus.py -a x64 -s demo.cpp -b 0x00,0x09,0x0a,0x20`
 
 ## shelldev++ Quickly Start 

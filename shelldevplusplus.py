@@ -599,3 +599,6 @@ if __name__ == "__main__":
 		print("COMPILE FLAG IS {}".format(ARCHCOMPILEFLAG))
 
 		genShellcode(options.source, not options.dontclear, ARCHCOMPILEFLAG , badChars)
+else:
+#future modularity
+	pass
