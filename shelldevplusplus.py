@@ -580,7 +580,7 @@ if __name__ == "__main__":
 		else:
 			print("I do not understand your badchars! Ignoring...")
 
-	print("[DEBUG] Badchars: {}".format(badChars))
+#	print("[DEBUG] Badchars: {}".format(badChars))
 
 	options.mingwPath = "YOU SHOULD NOT SEE THIS - If you do, file a bug report" #Overwrite mingw path with bogus file
 	mingwPath = options.mingwPath

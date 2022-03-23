@@ -1,9 +1,8 @@
 
-## shellDev.py
+## ShellDev++
 
 A simple python script for building windows 32bit/64bit shellcode in C... on Linux!
 This is a fork of @aaaddress1's original, which builds shellcode on Linux instead of on Windows. 
-Because a lot of the original code is Windows-centric (especially JIT injection), this branch has SEVERELY REDUCED FUNCTIONALITY. 
 However, this code runs on Linux, and generates Windows shellcode. It assumes you have mingw installed. 
 
 This code is a bunch of commented-out code and hotpatches, so don't be surprised if it breaks - but do let me know, and I'll try to fix it. 
@@ -16,9 +15,7 @@ Todos:
 Resulting shellcode tested on:
 - Windows 11 x64
 
-![螢幕快照 2018-02-18 上午10.55.26.png](resources/2021demo.png)
-
-以 C 語言快速開發支持 Windows 32/64 位元的 Shellcode 之 Python 腳本。
+![resource/front.png](resource/front.png)
 
 ## Preinstall（前置安裝）
 * Python3
@@ -27,13 +24,15 @@ Resulting shellcode tested on:
 ## Demo（簡單展示）
 
 Building 32bit Windows shellcode:
-`> python shellDev.py -a x86 -s msg.cpp`
+`python3 shelldevplusplus.py -a x86 -s msg.cpp`
 
-Building 62bit Windows shellcode:
-`> python shellDev.py -a x64 -s msg.cpp`
+Building 64bit Windows shellcode:
+`python3 shelldevplusplus.py -a x64 -s msg.cpp`
 
+Building 64bit Windows shellcode, without \x00\x09\x0a\x20
+`python3 shelldevplusplus.py -a x64 -s demo.cpp -b 0x00,0x09,0x0a,0x20`
 
-## shellDev.py Quickly Start 
+## shelldev++ Quickly Start 
 
 demo.cpp（shellDev 腳本範例）
 
@@ -159,6 +158,8 @@ you must define your own function in `shellFunc` calling convention if you want 
 all variables should be defined as local variables, global variables will lead to crash. (the string parameters you pass to functions should be defined as local variables too)
 
 因為定址方式問題，所以 shellDev 腳本不允許宣告任何全域變數、僅允許以區域變數存放資料，否則產出的 Shellcode 使用後必定會導致程式異常崩潰。即便是傳入給函數的文字常數，也務必先以區域變數保存，在傳遞給函數才能確保 Shellcode 正常運行。
+
+![resources/popup.png](resources/popup.png)
 
 ## Contact (original author)
 
