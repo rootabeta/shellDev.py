@@ -481,7 +481,7 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 		with open(shellcodeBin, 'wb') as w:
 			w.write(shellcodeBytecode)
 			print('[v] shellcode *binary* saved at %s' % shellcodeBin)
-	
+		encodedShellcode = b''
 		if badChars:
 			print("ENCODING SHELLCODE")
 			encodedShellcode = pwnlib.encoders.encoder.encode(shellcodeBytecode, badChars)
@@ -494,13 +494,14 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 				w.write(encodedShellcode)
 				print("[*] Encoded shellcode *binary* saved to {}".format(shellcodeBinENCODED))
 
-
 	if clearAfterRun:
 		os.remove(asm)
 		os.remove(shellAsm)
 		os.remove(obj)
 		os.remove(tmpcpp)
 		os.remove(binraw)
+
+	return (shellcodeBytecode, encodedShellcode) #So we can use it as an import if you want.
 
 def chkExeExist(name, path):
 	if os.path.exists(path):

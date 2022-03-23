@@ -10,7 +10,8 @@ This code is a bunch of commented-out code and hotpatches, so don't be surprised
 This program is good for one thing, and that's on-the-fly generation of shellcode from Linux, targeted for Windows systems. 
 
 Todos:
-- [ ] Encoding to remove bad characters
+- [X] Encoding to remove bad characters
+- [ ] Enable writing to a designated output directory, as opposed to dumping shellcode to cwd
 
 ![螢幕快照 2018-02-18 上午10.55.26.png](resources/2021demo.png)
 
