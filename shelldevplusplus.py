@@ -1,16 +1,15 @@
 title = \
 """
-      _          _ _ _____
-     | |        | | |  __ \\
-  ___| |__   ___| | | |  | | _____   __
- / __| '_ \ / _ \ | | |  | |/ _ \ \ / /
- \__ \ | | |  __/ | | |__| |  __/\ V /
- |___/_| |_|\___|_|_|_____/ \___| \_/
+   _____ _          _ _ _____                         
+  / ____| |        | | |  __ \\              _     _   
+ | (___ | |__   ___| | | |  | | _____   ___| |_ _| |_ 
+  \___ \\| '_ \\ / _ \\ | | |  | |/ _ \\ \\ / /_   _|_   _|
+  ____) | | | |  __/ | | |__| |  __/\\ V /  |_|   |_|  
+ |_____/|_| |_|\\___|_|_|_____/ \\___| \\_/              
 
-v1.3-L by aaaddress1@chroot.org
-Linux port by rootabeta
-This version has had features removed for Linux compatability. 
-Still compiles Windows shellcode.
+v1.4 by rootabeta
+Forked from aaaddress1@chroot.org
+Compiles Windows shellcode... on Linux!
 """
 
 # -------------------- Injection ------------------- #
@@ -28,7 +27,7 @@ try:
 	from pwn import * #pwnlib
 	PWNLIBFOUND = True
 except ModuleNotFoundError:
-	print("[!] ERROR: pwnlib not found")
+	print("[!] WARNING: pwnlib not found")
 	print("[!] Automatic shellcode encoding not possible!")
 	PWNLIBFOUND = False
 
