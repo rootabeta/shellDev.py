@@ -13,7 +13,7 @@ void shellFunc shellEntry(void) {
 	addr = getFuncAddr(loadLibA(usr32), msgboxastr);
 	func<decltype(&MessageBoxA)> msgbox((FARPROC)addr);
 
-	char msg[] = "IT WORKS!!! WOOHOO!!!!";
-	char title[] = "MESSAGE SHELLCODE!";
+	char msg[] = "Get rekt msfvenom!";
+	char title[] = "There's no 0x00 in this shellcode :D";
 	msgbox(0, msg, title, 0);
 }

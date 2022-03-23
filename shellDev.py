@@ -25,7 +25,7 @@ from ctypes.wintypes import LPVOID
 from ctypes.wintypes import LPCVOID
 
 try:
-	from pwn import pwnlib
+	from pwn import * #pwnlib
 	PWNLIBFOUND = True
 except ModuleNotFoundError:
 	print("[!] ERROR: pwnlib not found")
@@ -484,6 +484,20 @@ func<decltype(&%(WinApiName)s)> %(definedFuncName)s( (FARPROC) blindFindFunc( mo
 		encodedShellcode = b''
 		if badChars:
 			print("ENCODING SHELLCODE")
+
+			context.os = "windows"
+
+			if arch == "x86_64":
+				context.arch = 'amd64'
+				assert context.bits == 64
+
+			elif arch == "i686":
+				context.arch = 'i386'
+				assert context.bits == 32
+			else:
+				print("Oh shit")
+
+			print("Encoding for {}-{}, because flag is {}".format(context.arch,context.os,arch))
 			encodedShellcode = pwnlib.encoders.encoder.encode(shellcodeBytecode, badChars)
 
 			with open(shelltxtOutENCODED,'w') as w:
