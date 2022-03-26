@@ -14,6 +14,8 @@ void shellFunc shellEntry(void) {
 	func<decltype(&MessageBoxA)> msgbox((FARPROC)addr);
 
 	char msg[] = "Get rekt msfvenom!";
-	char title[] = "There's no 0x00 in this shellcode :D";
+	char title[] = {'P','W','N','E','D'};
 	msgbox(0, msg, title, 0);
+
+
 }

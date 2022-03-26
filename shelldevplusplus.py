@@ -352,8 +352,8 @@ def compileCtoAsmFile(cPath, asmPath, arch):
 #	global mingwPath
 	print("C->ASM ARCH: {}".format(arch))
 	subprocess.call([
-	(arch + "-w64-mingw32-gcc"),
-#		os.path.join(mingwPath, 'gcc'),
+	(arch + "-w64-mingw32-g++"),
+#		os.path.join(mingwPath, 'g++'),
 		'-fno-asynchronous-unwind-tables',
 		'-s',
 		'-O3',
@@ -388,8 +388,8 @@ def genObjAsmBinary(inAsmPath, outObjectFilePath, outAsmRawBinPath, arch):
 	global mingwPath
 	print("ASM->BIN: ARCH: {}".format(arch))
 	subprocess.call([
-		arch + "-w64-mingw32-gcc",
-#		os.path.join(mingwPath, 'gcc'),
+		arch + "-w64-mingw32-g++",
+#		os.path.join(mingwPath, 'g++'),
 		#arch, #Should have -m32 to force 32bit compilation in the event of x86 shellcode
 		'-c', inAsmPath,
 		'-o', outObjectFilePath
@@ -532,7 +532,7 @@ def chkMinGwToolkit(usrInputMinGWPath):
 #			print('[v] check mingw tool path: %s ' % mingwPath)
 #		else:
 #			print('[x] sorry, mingw toolkit not found in %s' % mingwPath)
-#	chkExeExist('gcc', os.path.join(mingwPath, 'gcc.exe'))
+#	chkExeExist('g++', os.path.join(mingwPath, 'g++.exe'))
 #	chkExeExist('as', os.path.join(mingwPath, 'as.exe'))
 #	chkExeExist('objcopy', os.path.join(mingwPath, 'objcopy.exe'))
 	print('[!] CHECK BYPASSED - ASSUMING GREENLIGHT')
